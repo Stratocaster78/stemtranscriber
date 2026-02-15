@@ -1,0 +1,44 @@
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  stemtranscriber-api:
+    build: ./api
+    container_name: stemtranscriber-api
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    volumes:
+      - ./api:/app
+      - ./data:/data
+
+  stemtranscriber-worker:
+    build: ./worker
+    container_name: stemtranscriber-worker
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - RQ_DEFAULT_TIMEOUT=3600
+      - DEMUCS_MODEL=htdemucs
+    depends_on:
+      - redis
+    volumes:
+      - ./worker:/app
+      - ./data:/data
+
+  stemtranscriber-web:
+    build: ./web
+    container_name: stemtranscriber-web
+    environment:
+      - API_INTERNAL_BASE=http://stemtranscriber-api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - stemtranscriber-api
+    volumes:
+      - ./web:/app
+      - /app/node_modules

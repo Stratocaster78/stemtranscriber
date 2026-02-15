@@ -1,0 +1,30 @@
+# OS / Editor
+.DS_Store
+.vscode/
+.idea/
+
+# Node / Next
+node_modules/
+web/node_modules/
+.next/
+web/.next/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# App data (uploads, stems, transcriptions, tmp)
+data/
+**/data/
+api/data/
+web/data/
+
+# Docker
+*.log
+
+# alphaTab assets (copied at runtime)
+web/public/alphatab/
