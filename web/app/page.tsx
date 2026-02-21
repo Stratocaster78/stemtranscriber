@@ -1,5 +1,6 @@
 "use client";
-
+import { transport } from "../lib/transport";
+import TransportBar from "../components/TransportBar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 
@@ -550,7 +551,12 @@ async function loadStems(pid: string) {
       <h1 style={{ marginBottom: 6 }}>StemTranscriber</h1>
       <p style={{ marginTop: 0, opacity: 0.8 }}>
         Mixer: pitch-preserving slow-down (20–100%) + loop A/B
-      </p>
+      </p> 
+       <TransportBar
+  onPlay={() => startAll(position)}
+  onPause={pauseAll}
+  onStop={stopAll}
+/>
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14, alignItems: "center" }}>
         <input
@@ -865,8 +871,13 @@ Stems (individual)</div>
             );
           })}
         </div>
+      
       )}
-    </main>
+    </main>  
+    
+  
+
+    
   );
 
   function toggleSolo(name: string) {
