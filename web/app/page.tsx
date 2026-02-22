@@ -1,4 +1,5 @@
 "use client";
+import { alphaTabApi } from "../components/AlphaTabViewer";
 import { transport } from "../lib/transport";
 import TransportBar from "../components/TransportBar";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -263,6 +264,21 @@ async function loadStems(pid: string) {
     refreshProjects().catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+  const handlePlay = () => startAll(position);
+  const handlePause = () => pauseAll();
+  const handleStop = () => stopAll();
+
+  window.addEventListener("alphatab-play", handlePlay);
+  window.addEventListener("alphatab-pause", handlePause);
+  window.addEventListener("alphatab-stop", handleStop);
+
+  return () => {
+    window.removeEventListener("alphatab-play", handlePlay);
+    window.removeEventListener("alphatab-pause", handlePause);
+    window.removeEventListener("alphatab-stop", handleStop);
+  };
+}, [position]);
 
   useEffect(() => {
     if (!jobId) return;
@@ -552,10 +568,28 @@ async function loadStems(pid: string) {
       <p style={{ marginTop: 0, opacity: 0.8 }}>
         Mixer: pitch-preserving slow-down (20–100%) + loop A/B
       </p> 
-       <TransportBar
-  onPlay={() => startAll(position)}
-  onPause={pauseAll}
-  onStop={stopAll}
+      <TransportBar
+  onPlay={() => {
+    
+
+    if (alphaTabApi?.player) {
+      alphaTabApi.player.play();
+    }
+  }}
+  onPause={() => {
+    pauseAll();
+
+    if (alphaTabApi?.player) {
+      alphaTabApi.player.pause();
+    }
+  }}
+  onStop={() => {
+    stopAll();
+
+    if (alphaTabApi?.player) {
+      alphaTabApi.player.stop();
+    }
+  }}
 />
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14, alignItems: "center" }}>

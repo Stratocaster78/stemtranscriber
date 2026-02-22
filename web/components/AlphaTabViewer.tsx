@@ -1,5 +1,5 @@
 "use client";
-
+export let alphaTabApi: any = null;
 import { useEffect, useRef, useState } from "react";
 
 declare global {
@@ -85,7 +85,39 @@ export default function AlphaTabViewer({ musicXmlUrl, tempo }: Props) {
       settings.player.enableAudioWorklets = false;
 
       const api = new alphaTab.AlphaTabApi(containerRef.current, settings);
-      apiRef.current = api;
+      apiRef.current = api; alphaTabApi = api;
+      // ---- GLOBAL TRANSPORT EVENTS ----
+
+api.playerReady.on(() => {
+  console.log("AlphaTab player ready");
+});
+
+api.playerStateChanged.on((e: any) => {
+  const raw = e?.state ?? e;
+  const s = raw?.state ?? raw;
+  const stoppedFlag = e?.stopped ?? raw?.stopped;
+
+  console.log("AlphaTab state event:", { e, s, stoppedFlag });
+
+  if (s === 1 || s === "playing") {
+    window.dispatchEvent(new Event("alphatab-play"));
+    return;
+  }
+
+  if (s === 2 || s === "paused") {
+    window.dispatchEvent(new Event("alphatab-pause"));
+    return;
+  }
+
+  if (s === 0 || s === "stopped") {
+    if (stoppedFlag === true) {
+      window.dispatchEvent(new Event("alphatab-stop"));
+    } else {
+      window.dispatchEvent(new Event("alphatab-play"));
+    }
+    return;
+  }
+});
 
       api.error.on((e: any) => {
         console.error("alphaTab error", e);
@@ -145,7 +177,7 @@ export default function AlphaTabViewer({ musicXmlUrl, tempo }: Props) {
           Play
         </button>
         <button
-          onClick={() => apiRef.current?.player?.pause()}
+         onClick={() => apiRef.current?.player?.pause()}
           disabled={!canPlay}
           style={{ padding: "8px 10px", borderRadius: 10, border: "1px solid #ccc", cursor: canPlay ? "pointer" : "not-allowed", opacity: canPlay ? 1 : 0.6 }}
         >
